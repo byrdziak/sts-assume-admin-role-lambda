@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: |
+  Lambda for creating temp IAM admin credentials.
+  Template Source: https://github.com/byrdziak/sts-assume-admin-role-lambda
+
+
+Parameters:
+  LambdaName:
+    Description: 'Name of STS Admin cred lambda'
+    Type: String
+    Default: AdminCredentialsLambda
+
+  SessionDuration:
+    Description: 'Session duration for assumed admin role in seconds'
+    Type: Number
+    Default: 3600
+
+
+Resources:
+  AdminCredentialsLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: !Ref LambdaName
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Description: 'Generates aws temp admin credentials'
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          ROLE_ARN: !GetAtt AdminRole.Arn
+      Role: !GetAtt ExecutionRole.Arn
+      InlineCode: |
+        import os
+        import subprocess
+        import logging
+        import json
+        import boto3
+
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+
+        stsClient = boto3.client('sts')
+
+
+        def lambda_handler(event, context):
+            roleArn = os.environ['ROLE_ARN']
+
+            stsResponse = stsClient.assume_role(RoleArn=roleArn, RoleSessionName='TempAdminAccess')
+
+
+            print(f"aws_access_key_id = {stsResponse['Credentials']['AccessKeyId']}")
+            print(f"aws_secret_access_key = {stsResponse['Credentials']['SecretAccessKey']}")
+            print(f"aws_session_token = {stsResponse['Credentials']['SessionToken']}")
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: policy1
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource: '*'
+              - Effect: Deny
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvent
+                Resource: arn:aws:logs:*:*:*
+
+  AdminRole:
+    Type: AWS::IAM::Role
+    Properties:
+      MaxSessionDuration: !Ref SessionDuration
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:sts::${AWS::AccountId}:assumed-role/${ExecutionRole}/${LambdaName}"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: policy1
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - aws:*
+                Resource: '*'
