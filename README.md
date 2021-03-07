@@ -2,7 +2,7 @@
 
 Simple CloudFormation stack that can be used to generate temporary admin credentials using AWS Lambda function.
 
-Default permission is AWS:*<br/>  
+Default permission for printed credentials is AWS:*<br/>  
 Default session duration is 1h
 
 Output format from lambda is:
