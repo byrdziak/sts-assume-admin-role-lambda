@@ -16,7 +16,7 @@ Parameters:
     Type: Number
     Default: 3600
 
-  GrantedCredentials:
+  GrantedPermissions:
     Description: 'Specifies which credentials should be granted for generated credentials'
     Type: List<String>
     Default: "aws:*"
@@ -102,5 +102,5 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: !Ref GrantedCredentials
+                Action: !Ref GrantedPermissions
                 Resource: '*'
