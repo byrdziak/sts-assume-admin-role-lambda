@@ -16,6 +16,11 @@ Parameters:
     Type: Number
     Default: 3600
 
+  GrantedCredentials:
+    Description: 'Specifies which credentials should be granted for generated credentials'
+    Type: List<String>
+    Default: "aws:*"
+    #should be comma separated values, no white space
 
 Resources:
   AdminCredentialsLambda:
@@ -97,6 +102,5 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action:
-                  - aws:*
+                Action: !Ref GrantedCredentials
                 Resource: '*'
