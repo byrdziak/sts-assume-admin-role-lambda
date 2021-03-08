@@ -19,7 +19,7 @@ Parameters:
   GrantedPermissions:
     Description: 'Specifies which credentials should be granted for generated credentials'
     Type: List<String>
-    Default: "aws:*"
+    Default: "*"
     #should be comma separated values, no white space
 
 Resources:
