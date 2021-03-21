@@ -6,6 +6,10 @@ Description: |
 
 
 Parameters:
+  ProjectName:
+    Type: String
+    Default: TEMP-ADMIN-CRED
+
   LambdaName:
     Description: 'Name of STS Admin cred lambda'
     Type: String
@@ -62,6 +66,7 @@ Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Join ['-', [!Ref ProjectName, 'ExecutionRole']]
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -77,7 +82,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - sts:AssumeRole
-                Resource: '*'
+                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/!Join ['-', [!Ref ProjectName, 'AdminRole']]"
               - Effect: Deny
                 Action:
                   - logs:CreateLogGroup
@@ -88,6 +93,7 @@ Resources:
   AdminRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Join ['-', [!Ref ProjectName, 'AdminRole']]
       MaxSessionDuration: !Ref SessionDuration
       AssumeRolePolicyDocument:
         Version: 2012-10-17

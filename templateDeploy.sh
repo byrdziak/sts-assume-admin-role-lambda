@@ -14,4 +14,4 @@ fi
 aws cloudformation deploy \
     --template-file $cdir/template.yaml \
     --stack-name $stackName \
-    --capabilities=CAPABILITY_IAM
+    --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
