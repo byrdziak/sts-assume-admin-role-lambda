@@ -79,10 +79,6 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              - Effect: Allow
-                Action:
-                  - sts:AssumeRole
-                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/!Join ['-', [!Ref ProjectName, 'AdminRole']]"
               - Effect: Deny
                 Action:
                   - logs:CreateLogGroup
